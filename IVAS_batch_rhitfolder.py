@@ -3,7 +3,7 @@ import os
 import shutil
 from datetime import datetime
 
-os.chdir('C:/Users/Martin/Documents/Spyder')
+
 import autoIVAS
 from ivas_controlfunctions import ErrorInAutoIvas
 from ivas_controlfunctions import GeneralIvasError
@@ -13,9 +13,12 @@ from ivas_controlfunctions import GeneralIvasError
 IVASlocation = "C://Program Files//CAMECA Instruments//ivas-3.8.4//bin//ivas.bat"
 IVASdirectory = "C://Program Files//CAMECA Instruments//ivas-3.8.4//bin"  #not sure wether these weird path separators are necessary
 ivas_javaproc_name = "javaw.exe"
+ivas_config_path = "C:\\Users\\Martin\\AppData\\Roaming\\ivas-3.8.4"
 
 #Dummy range file
-dummyRangeFilePath = "C:Users/Martin/Documents/Spyder/IVAS_autorec/autorec_dummy.rrng" #upward slash for ivas!
+dummyRangeFilePath = "C:/Users/Martin/Documents/Spyder/IVAS_autorec/AutoRec/autorec_dummy.rrng" #upward slash for ivas!
+
+
 
 #Folder with rhit files
 rhitfolder = "C:/Users/Martin/Documents/Spyder/IVAS_autorec/rhits" #upward slash for ivas!
@@ -30,9 +33,9 @@ outputdir = "C:\\Users\\Martin\\Documents\\Spyder\\IVAS_autorec\\output"
 protocolFile = "C:\\Users\\Martin\\Documents\\Spyder\\IVAS_autorec\\protocolFile.txt" # will be created, but never overwritten - text is only appended
 
 #maxAttemptsPerFile and the list of bad rhits
-maxAttemptsPerFile = 3
-badRhitsFile = "C:\\Users\\Martin\\Documents\\Spyder\\IVAS_autorec\\badRHITS.txt" # rhits that fail more than maxAttemptsPerFile and therefore are attempted to reconstruct again
-TODO: need to add functionality for this table
+#maxAttemptsPerFile = 3
+#badRhitsFile = "C:\\Users\\Martin\\Documents\\Spyder\\IVAS_autorec\\badRHITS.txt" # rhits that fail more than maxAttemptsPerFile and therefore are attempted to reconstruct again
+#TODO: need to add functionality for this table
 
 def filesOnPath(path):
     for file in os.listdir(path):
@@ -67,9 +70,19 @@ for rhitFile in filesOnPath(rhitfolder):
     try:
         autoIVAS.IVAS_FullReconstruction(IVASlocation, IVASdirectory, ivas_javaproc_name, dummyRangeFilePath, rhitPath, projectName)
     except GeneralIvasError:
-        TODO need to add this
-    except ErrorInAutoIvas:
-        TODO need to add this 
+        print(" \n Generl IVAS Error. Cannot continue \n")
+        raise 
+    except ErrorInAutoIvas as errormsg:
+        print( "encountered Error. Will Reset Ivas, delete eventually existing output project and try again. Error was: ")
+        print(errormsg)
+        autoIVAS.IVAS_KillAndReset(ivas_javaproc_name, ivas_config_path)
+        try:
+            ivasoutputfolder = os.path.join(ivasoutputdir , projectName)
+            shutil.rmtree(ivasoutputfolder)
+        except Exception as errormsg2:
+            print("Error deleting output directory. It might not exist? Error message is: ")
+            print(errormsg2)
+        print("...will continue with next file")
     else:
         successful = True      
         protocolWrite("Reconstruction successful. Will copy files... ")
@@ -90,13 +103,13 @@ for rhitFile in filesOnPath(rhitfolder):
         print ("...done")
         protocolWrite("...done")
 
+        #tidy up
+        print ("Tidy up...")
+        autoIVAS.IVAS_TidyUp(ivas_javaproc_name)
+        print ("...done")
 
-    protocolWrite("...done")
-    #tidy up
-    print ("Tidy up...")
-    autoIVAS.IVAS_TidyUp(ivas_javaproc_name)
-    TODO: edit this to handle a filed recontruction
-    print ("...done")
+
+
    
     
 

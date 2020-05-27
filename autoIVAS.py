@@ -12,21 +12,21 @@ import os
 import sys
 import time
 import logging
+import subprocess
 
 import pyautogui
 
+os.chdir('C:\\Users\\Martin\\Documents\\Spyder\\IVAS_autorec\\AutoRec')
 import reconwizard_pages as recwiz
 import ivas_controlfunctions as ictrl
+ictrl.ivas_clickimage_folder = "C:\\Users\\Martin\\Documents\\Spyder\\IVAS_autorec\\IVASClickimages"
 #importlib.reload(recwiz.reconwizard_pages)
 
 
 
 def IVAS_FullReconstruction(IVASlocation, IVASdirectory, ivas_javaproc_name, dummyRangeFilePath, rhitPath, projectName):
     
-    pyautogui.PAUSE = 0.5
-
-    #Go to the path with the IVAS clickimages
-    os.chdir('C://Users//Martin//Documents//Spyder//IVASClickImages')
+    pyautogui.PAUSE = 0.5 
     
     #Launch IVAS
     time.sleep(1)
@@ -36,6 +36,7 @@ def IVAS_FullReconstruction(IVASlocation, IVASdirectory, ivas_javaproc_name, dum
 
     #Load the dummy range file
     starttime = time.time()
+    time.sleep(2)
     ictrl.loadDummyRanges(dummyRangeFilePath)
     logging.info("Time for Load Dummy Ranges: " + str(time.time() - starttime))
 
@@ -89,8 +90,8 @@ def IVAS_FullReconstruction(IVASlocation, IVASdirectory, ivas_javaproc_name, dum
     logging.info("Time for export epos: " + str(time.time() - starttime))
 
 
-
-
+def IVAS_KillAndReset(ivas_javaproc_name, ivas_config_path):
+    ictrl.Reset_IVAS(ivas_javaproc_name=ivas_javaproc_name, ivas_config_path=ivas_config_path)
 
 def IVAS_TidyUp(ivas_javaproc_name):
 
@@ -112,11 +113,7 @@ def IVAS_TidyUp(ivas_javaproc_name):
 
     logging.info("Time for close Ivas: " + str(time.time() - starttime))
 
-
     #done.
-
-
-
 
 
 
