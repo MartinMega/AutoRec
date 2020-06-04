@@ -8,6 +8,14 @@ import win32process
 import subprocess
 import os
 import signal
+import warnings
+
+
+try: # if package opencv-python is missing,  the locateOnScreen() function from pyautogy will be very slow.
+    import cv2 
+except:
+    warnings.warn("Package opencv-python missing. Image recognition from library pyautogui will be awfully slow")
+
 
 
 
@@ -25,8 +33,7 @@ class GeneralIvasError(Exception): # an error that is definitely not due to the 
 
 def waitBar_awaitReady(timeout = 60):
     #wait until the waitbar in the Reconstruction Wizard shows "Ready"
-    print("Waitbar Fun started!")
-    returned = awaitSymbolVariants("ivas_waitbar_ready.png", "ivas_waitbar_ready_variant.png", timeout=timeout)
+    returned = awaitSymbolVariants("ivas_waitbar_ready_VM.png", "ivas_waitbar_ready_variant.png", timeout=timeout)
     if returned == None:
         raise ErrorInAutoIvas('waited for waitbar to show "ready" but timeout occured')
 
@@ -41,7 +48,7 @@ def awaitSymbol (symbol, presstab = False, mousemove = False, sleeptime = 0.5, t
     while symbolonscreen == None:
         symbolonscreen = pyautogui.locateOnScreen(symbol) #wait until this symbol turns up
         if presstab:
-            check_ivas_foreground_and_OK(timeout = 5)
+            check_ivas_foreground_and_OK(timeout = 10, bringToFg=True)
             pyautogui.press('\t')
         if mousemove:
             pyautogui.move(1,1,0.2)
@@ -65,7 +72,7 @@ def awaitSymbolVariants(symbol1, symbol2,  presstab = False, mousemove = False, 
         if symbolonscreen == None:
             symbolonscreen = pyautogui.locateOnScreen(symbol2) # not found? look for the other symbol
         if presstab:
-            check_ivas_foreground_and_OK(timeout = 5)
+            check_ivas_foreground_and_OK(timeout = 10, bringToFg=True)
             pyautogui.press('\t')
         if mousemove:
             pyautogui.move(1,1,0.2)        
@@ -93,7 +100,7 @@ def awaitInfoDialog(mousemove = False, sleeptime = 0.2, timeout = 60):
 
 
 
-def Launch_IVAS (ivaslocation, ivasdirectory, ivas_javaproc_name):
+def Launch_IVAS (ivaslocation, ivasdirectory, ivas_javaproc_names):
     IVASprocess = subprocess.Popen(ivaslocation, cwd=ivasdirectory) #launch ivas
     awaitSymbol("IVAS_mainWindow_NewProject.png") # The new project symbol is a good indicator for that the main window is now open
     time.sleep(4)
@@ -102,7 +109,7 @@ def Launch_IVAS (ivaslocation, ivasdirectory, ivas_javaproc_name):
     def callback (hwnd, hwnds):
         if win32gui.IsWindowVisible (hwnd) and win32gui.IsWindowEnabled (hwnd):            
             _, found_pid = win32process.GetWindowThreadProcessId (hwnd)
-            ivaspid = find_procID_by_name(ivas_javaproc_name)
+            ivaspid = find_procID_by_name(ivas_javaproc_names)
             if (found_pid == ivaspid[0]):
                 hwnds.append (hwnd)
         return True
@@ -112,27 +119,27 @@ def Launch_IVAS (ivaslocation, ivasdirectory, ivas_javaproc_name):
         raise GeneralIvasError("Several possible handles to main Window found. Is a license error window open? Cannot continue!")
     global ivas_MainWin_Handle 
     ivas_MainWin_Handle= hwnds[0]
-    check_ivas_foreground_and_OK()
+    check_ivas_foreground_and_OK(bringToFg=True)
     return IVASprocess
 
 
 
 
-def terminateIVASprocess(ivas_javaproc_name):
+def terminateIVASprocess(ivas_javaproc_names):
     # Find javaprocess,  send terminate signal,  wait if it is gone within 10 sec.
     # if still not gone,  error
-    javapids = find_procID_by_name(ivas_javaproc_name)
+    javapids = find_procID_by_name(ivas_javaproc_names)
     if len(javapids) > 1:
         raise GeneralIvasError("Several possible ids for ivas java process found. Cannot continue!")
     elif len(javapids) == 1:
         os.kill(javapids[0], signal.SIGTERM)
 
     starttime = time.time()
-    javapids = find_procID_by_name(ivas_javaproc_name)
+    javapids = find_procID_by_name(ivas_javaproc_names, noexception = True)
     while len(javapids) != 0:
         if (time.time() - starttime < 10):
             break
-        javapids = find_procID_by_name(ivas_javaproc_name)
+        javapids = find_procID_by_name(ivas_javaproc_names, noexception=True)
         
 
 def isErrorWindowOpen():
@@ -182,20 +189,28 @@ def isIVASWindowWithTitleOpen(windowTitles: list) -> bool:
 
 
 
-def Reset_IVAS (ivas_javaproc_name, ivas_config_path):
+def Reset_IVAS (ivas_javaproc_names, ivas_config_path):
     # terminate ivas process, delete ivas configuration. You might also want to delete any incomplete files on the output path if you use this function.
-    terminateIVASprocess(ivas_javaproc_name)
-    try:
-        shutil.rmtree(path=ivas_config_path)
-    except:
-        raise GeneralIvasError("cannot delete ivas configuration folder. provided path:" + ivas_config_path)
+    terminateIVASprocess(ivas_javaproc_names)
+    Attempts = 0
+    while True:
+        try:
+            shutil.rmtree(path=ivas_config_path) # Try 5 times to delete the ivas config folder. Sometimes windows does not immediately give us permission to delete this folder if IVAS which accesses the files has just been terminated.
+        except Exception as err:
+            warnings.warn("Failed to delete IVAS config folder. Error was: " + str(err))
+            Attempts = Attempts+1
+            time.sleep(0.5)
+        else:
+            break
+        if Attempts > 5:
+            raise GeneralIvasError("cannot delete ivas configuration folder. provided path:" + ivas_config_path)
 
 
 
 
 
 def loadDummyRanges(dummyRangeFilePath):
-    check_ivas_foreground_and_OK()
+    check_ivas_foreground_and_OK(bringToFg=True)
     clickpos = awaitSymbol("IVAS_mainWindow_RangeFileManager.png", timeout=20) #hit the range file manager symbol
     pyautogui.click(clickpos)
     clickpos = awaitSymbol("IVAS_RangeFileManager_RootSymbol.png", timeout=20) # open a new range file
@@ -203,14 +218,15 @@ def loadDummyRanges(dummyRangeFilePath):
     pyautogui.rightClick(clickpos) #context menu
     pyautogui.press('down')
     pyautogui.press('enter')
-    time.sleep(0.5)
+    time.sleep(0.2)
+    awaitSymbol("IVAS_fileBrowser_Controls.png",sleeptime=0.2, presstab=False, mousemove=True)
     pyautogui.typewrite(dummyRangeFilePath) # enter the filename
-    time.sleep(0.1)
+    time.sleep(0.2)
     pyautogui.press('enter') #confirm
-    time.sleep(2)
+    time.sleep(1)
 
 def createNewProject(rhitPath, projectName):
-    check_ivas_foreground_and_OK()
+    check_ivas_foreground_and_OK(bringToFg=True)
     clickpos = awaitSymbol("IVAS_mainWindow_NewProject.png", presstab=False, mousemove=False) # open new peoject dialog
     pyautogui.click(clickpos)
     pyautogui.press('enter')  # Go to second page
@@ -233,10 +249,10 @@ def createNewProject(rhitPath, projectName):
     time.sleep(2)
     pyautogui.press('\t')
     pyautogui.press('enter')
-    time.sleep(4)
+    time.sleep(2)
 
 def exportEpos():
-    check_ivas_foreground_and_OK()
+    check_ivas_foreground_and_OK(bringToFg=True)
     clickpos = awaitSymbol("IVAS_mainWindow_ProjectsTab.png") # We click on the "Projects" tab. the text recognition does not recognise this text, which is really bad. We have to go for sumbol based recognition instead.
     pyautogui.click(clickpos) 
     menuopen = awaitSymbol("IVAS_projectsBrowser_OpenProjectTree.png") # We need to open the project in the project tree wirw window.
@@ -250,7 +266,7 @@ def exportEpos():
     pyautogui.press('enter') # confirm with enter
 
 def deleteProject():
-    check_ivas_foreground_and_OK()
+    check_ivas_foreground_and_OK(bringToFg=True)
     clickpos = awaitSymbol("IVAS_projectsBrowser_ProjectSymbol.png") # right click project symbol
     pyautogui.rightClick(clickpos) 
     pyautogui.press('down', presses=7, interval=0.1) #scroll to the "delete from disk" button
@@ -277,7 +293,7 @@ def bringIVAStoForeGround():
         raise ErrorInAutoIvas("Attempted to bring IVAS window to Foreground, but Windows seems to not exist any more")
 
 
-def check_ivas_foreground_and_OK(timeout = 20):
+def check_ivas_foreground_and_OK(timeout = 20, bringToFg = False):
     # check if the ivas Window is in the foreground and no error window is open. a failsafe function that should be called regularly.
     # if window is not in fireground, the check will be repeated antil a timeout occurs. then, an error os thrown.
     # Also throws error if error window is open
@@ -290,27 +306,31 @@ def check_ivas_foreground_and_OK(timeout = 20):
     while (activeWindow != ivas_MainWin_Handle):
         if (time.time() - firstcheck > timeout):
             raise ErrorInAutoIvas("Ivas Window not in Foreground, and timeout reached.")
+        if bringToFg:
+            bringIVAStoForeGround()
         time.sleep(0.2)
         activeWindow = win32gui.GetForegroundWindow()    
     
     activeWindow = win32gui.GetForegroundWindow()
     if activeWindow != ivas_MainWin_Handle:
-        raise ErrorInAutoIvas("IVAS Window is not in Foreground. Thir is probably a problem. Abort.")
+        raise ErrorInAutoIvas("IVAS Window is not in Foreground. This is probably a problem. Abort.")
 
 
-def find_procID_by_name(name): # from similar to something i found somewhere on the internet 
+def find_procID_by_name(names, noexception=False): # from similar to something i found somewhere on the internet 
+    #also works for a list of names, provided only one name is the name of a valid process
+    #will not throw an exception of noexception=True
     # Iterate over all running process
     processpidlist = list()
     for proc in psutil.process_iter():
         try:
             # Get process name & pid from process object.
             processName = proc.name()
-            if processName == name:
+            if processName in names:
                 processpidlist.append(proc.pid)
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
-    if len(processpidlist) != 1:
-        raise UserWarning("none or more than one processes with name " + name + " found. This is probably a problem!")
+    if len(processpidlist) != 1 and (noexception==False):
+        raise UserWarning("none or more than one processes with name " + str(names) + " found. This is probably a problem!")
     return processpidlist
 
 

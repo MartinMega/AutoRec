@@ -16,22 +16,23 @@ import subprocess
 
 import pyautogui
 
-os.chdir('C:\\Users\\Martin\\Documents\\Spyder\\IVAS_autorec\\AutoRec')
+#os.chdir('C:\\Users\\Martin\\Documents\\Spyder\\IVAS_autorec\\AutoRec')
 import reconwizard_pages as recwiz
 import ivas_controlfunctions as ictrl
-ictrl.ivas_clickimage_folder = "C:\\Users\\Martin\\Documents\\Spyder\\IVAS_autorec\\IVASClickimages"
 #importlib.reload(recwiz.reconwizard_pages)
 
+def AutoIVAS_setClickImageFolder(imageFolder):
+    ictrl.ivas_clickimage_folder = imageFolder
 
 
-def IVAS_FullReconstruction(IVASlocation, IVASdirectory, ivas_javaproc_name, dummyRangeFilePath, rhitPath, projectName):
+def IVAS_FullReconstruction(IVASlocation, IVASdirectory, ivas_javaproc_names, dummyRangeFilePath, rhitPath, projectName):
     
     pyautogui.PAUSE = 0.5 
     
     #Launch IVAS
     time.sleep(1)
     starttime = time.time()
-    IVASprocess = ictrl.Launch_IVAS(IVASlocation, IVASdirectory, ivas_javaproc_name)
+    IVASprocess = ictrl.Launch_IVAS(IVASlocation, IVASdirectory, ivas_javaproc_names)
     logging.info("Time for Launch: " + str(time.time() - starttime))
 
     #Load the dummy range file
@@ -79,7 +80,7 @@ def IVAS_FullReconstruction(IVASlocation, IVASdirectory, ivas_javaproc_name, dum
 
     #Actual reconstruction page
     starttime = time.time()
-    ivasjavaprocess = ictrl.find_procID_by_name(ivas_javaproc_name)
+    ivasjavaprocess = ictrl.find_procID_by_name(ivas_javaproc_names)
     ivasjavaprocess = ivasjavaprocess[0]
     recwiz.reconwizard_page7(ivas_javaprocess_pid = ivasjavaprocess)
     logging.info("Time for Rec p7: " + str(time.time() - starttime))
@@ -90,10 +91,10 @@ def IVAS_FullReconstruction(IVASlocation, IVASdirectory, ivas_javaproc_name, dum
     logging.info("Time for export epos: " + str(time.time() - starttime))
 
 
-def IVAS_KillAndReset(ivas_javaproc_name, ivas_config_path):
-    ictrl.Reset_IVAS(ivas_javaproc_name=ivas_javaproc_name, ivas_config_path=ivas_config_path)
+def IVAS_KillAndReset(ivas_javaproc_names, ivas_config_path):
+    ictrl.Reset_IVAS(ivas_javaproc_names=ivas_javaproc_names, ivas_config_path=ivas_config_path)
 
-def IVAS_TidyUp(ivas_javaproc_name):
+def IVAS_TidyUp(ivas_javaproc_names):
 
     pyautogui.PAUSE = 0.2
 

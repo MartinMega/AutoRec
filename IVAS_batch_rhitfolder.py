@@ -12,13 +12,14 @@ from ivas_controlfunctions import GeneralIvasError
 #Parameters IVAS
 IVASlocation = "C://Program Files//CAMECA Instruments//ivas-3.8.4//bin//ivas.bat"
 IVASdirectory = "C://Program Files//CAMECA Instruments//ivas-3.8.4//bin"  #not sure wether these weird path separators are necessary
-ivas_javaproc_name = "javaw.exe"
+ivas_javaproc_names = ["java.exe", "javaw.exe"]
 ivas_config_path = "C:\\Users\\Martin\\AppData\\Roaming\\ivas-3.8.4"
 
 #Dummy range file
 dummyRangeFilePath = "C:/Users/Martin/Documents/Spyder/IVAS_autorec/AutoRec/autorec_dummy.rrng" #upward slash for ivas!
 
-
+#click image folder
+clickImageFolder = "C:\\Users\\Martin\\Documents\\Spyder\\IVAS_autorec\\IVASClickimages"
 
 #Folder with rhit files
 rhitfolder = "C:/Users/Martin/Documents/Spyder/IVAS_autorec/rhits" #upward slash for ivas!
@@ -68,14 +69,15 @@ for rhitFile in filesOnPath(rhitfolder):
     protocolWrite("Next reconstruction: " + projectName + " from file " + rhitPath)
 
     try:
-        autoIVAS.IVAS_FullReconstruction(IVASlocation, IVASdirectory, ivas_javaproc_name, dummyRangeFilePath, rhitPath, projectName)
+        autoIVAS.AutoIVAS_setClickImageFolder(clickImageFolder)
+        autoIVAS.IVAS_FullReconstruction(IVASlocation, IVASdirectory, ivas_javaproc_names, dummyRangeFilePath, rhitPath, projectName)
     except GeneralIvasError:
         print(" \n Generl IVAS Error. Cannot continue \n")
         raise 
     except ErrorInAutoIvas as errormsg:
         print( "encountered Error. Will Reset Ivas, delete eventually existing output project and try again. Error was: ")
         print(errormsg)
-        autoIVAS.IVAS_KillAndReset(ivas_javaproc_name, ivas_config_path)
+        autoIVAS.IVAS_KillAndReset(ivas_javaproc_names, ivas_config_path)
         try:
             ivasoutputfolder = os.path.join(ivasoutputdir , projectName)
             shutil.rmtree(ivasoutputfolder)
@@ -105,26 +107,14 @@ for rhitFile in filesOnPath(rhitfolder):
 
         #tidy up
         print ("Tidy up...")
-        autoIVAS.IVAS_TidyUp(ivas_javaproc_name)
+        autoIVAS.IVAS_TidyUp(ivas_javaproc_names)
         print ("...done")
 
 
 
-   
-    
 
 
 
 
-
-
-
-
-
-
-
-## Parameters for the project; rhit file and project name
-#rhitPath = "C:/Users//Martin/Documents/Spyder/IVAS_autorec/R14_28149.RHIT"
-#projectName =  "R14_28149_AUTOREC"
 
 
