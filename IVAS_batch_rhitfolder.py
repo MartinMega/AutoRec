@@ -1,6 +1,8 @@
 
 import os
 import shutil
+import configparser
+from json import loads
 from datetime import datetime
 
 
@@ -10,33 +12,68 @@ from ivas_controlfunctions import GeneralIvasError
             
 
 #Parameters IVAS
-IVASlocation = "C://Program Files//CAMECA Instruments//ivas-3.8.4//bin//ivas.bat"
-IVASdirectory = "C://Program Files//CAMECA Instruments//ivas-3.8.4//bin"  #not sure wether these weird path separators are necessary
-ivas_javaproc_names = ["java.exe", "javaw.exe"]
-ivas_config_path = "C:\\Users\\Martin\\AppData\\Roaming\\ivas-3.8.4"
+IVASlocation = "empty" #"C://Program Files//CAMECA Instruments//ivas-3.8.4//bin//ivas.bat"
+IVASdirectory = "empty" #"C://Program Files//CAMECA Instruments//ivas-3.8.4//bin"  #not sure wether these weird path separators are necessary
+ivas_javaproc_names = "empty" #["java.exe", "javaw.exe"]
+ivas_config_path = "empty" #"C:\\Users\\Martin\\AppData\\Roaming\\ivas-3.8.4"
 
 #Dummy range file
-dummyRangeFilePath = "C:/Users/Martin/Documents/Spyder/IVAS_autorec/AutoRec/autorec_dummy.rrng" #upward slash for ivas!
+dummyRangeFilePath = "empty" #"C:/Users/Martin/Documents/Spyder/IVAS_autorec/AutoRec/autorec_dummy.rrng" #upward slash for ivas!
 
 #click image folder
-clickImageFolder = "C:\\Users\\Martin\\Documents\\Spyder\\IVAS_autorec\\IVASClickimages"
+clickImageFolder = "empty" #"C:\\Users\\Martin\\Documents\\Spyder\\IVAS_autorec\\IVASClickimages"
 
 #Folder with rhit files
-rhitfolder = "C:/Users/Martin/Documents/Spyder/IVAS_autorec/rhits" #upward slash for ivas!
+rhitfolder = "empty" #"C:/Users/Martin/Documents/Spyder/IVAS_autorec/rhits" #upward slash for ivas!
 
 #IVAS output directory
-ivasoutputdir = "C:\\Users\\Martin\\Documents\\NetBeansProjects"
+ivasoutputdir = "empty" #"C:\\Users\\Martin\\Documents\\NetBeansProjects"
 
 #results dir for copying the resulting files
-outputdir = "C:\\Users\\Martin\\Documents\\Spyder\\IVAS_autorec\\output"
+outputdir = "empty" #"C:\\Users\\Martin\\Documents\\Spyder\\IVAS_autorec\\output"
 
 #protocol file
-protocolFile = "C:\\Users\\Martin\\Documents\\Spyder\\IVAS_autorec\\protocolFile.txt" # will be created, but never overwritten - text is only appended
+protocolFile = "empty" #"C:\\Users\\Martin\\Documents\\Spyder\\IVAS_autorec\\protocolFile.txt" # will be created, but never overwritten - text is only appended
 
 #maxAttemptsPerFile and the list of bad rhits
 #maxAttemptsPerFile = 3
 #badRhitsFile = "C:\\Users\\Martin\\Documents\\Spyder\\IVAS_autorec\\badRHITS.txt" # rhits that fail more than maxAttemptsPerFile and therefore are attempted to reconstruct again
 #TODO: need to add functionality for this table
+
+configFilePath = "C:\\Users\\Martin\\Documents\\Spyder\\IVAS_autorec\\AutoRec\\config_Laptop.ini"
+
+
+def getConfigFromFile(pathToConfigFile):
+
+    config = configparser.ConfigParser(inline_comment_prefixes=('#'))
+    try:
+        readfiles = config.read(pathToConfigFile)
+    except:
+        print("\n Error while reading configuration File. \n")
+        raise 
+    if len(readfiles) == 0:
+        raise Exception("Could not read config File " + pathToConfigFile + " . Does the File exist?")
+ 
+
+    global IVASlocation, IVASdirectory, ivas_javaproc_names, ivas_config_path, dummyRangeFilePath
+    global clickImageFolder, rhitfolder, ivasoutputdir, outputdir, protocolFile
+    IVASlocation = config["IVASparameters"]["IVASlocation"]
+    IVASdirectory = config["IVASparameters"]["IVASdirectory"]
+    ivas_javaproc_names = loads(config["IVASparameters"]["ivas_javaproc_names"]) # the result is a list of strings, not a single string!
+    ivas_config_path = config["IVASparameters"]["ivas_config_path"]
+    dummyRangeFilePath = config["reconstructorScript"]["dummyRangeFilePath"]
+    clickImageFolder = config["reconstructorScript"]["clickImageFolder"]
+    rhitfolder = config["reconstructorScript"]["rhitfolder"]
+    ivasoutputdir = config["reconstructorScript"]["ivasoutputdir"]
+    outputdir = config["reconstructorScript"]["outputdir"]
+    protocolFile = config["reconstructorScript"]["protocolFile"]
+
+
+
+
+
+
+
 
 def filesOnPath(path):
     for file in os.listdir(path):
@@ -50,6 +87,11 @@ def protocolWrite(text):
         fid.write(dt_string + " | " + text)
 
 
+
+
+
+
+getConfigFromFile(configFilePath)
 
 protocolWrite("IVAS_batch reconstruction script started.")
 for rhitFile in filesOnPath(rhitfolder):
