@@ -30,12 +30,12 @@ def reconwizard_page2():
     ictrl.awaitSymbol("IVAS_ReconWizard_Page2Heading.png")
 
     oldpause = pyautogui.PAUSE # otherwise this is annoyingly slow, but we set it back after the while loop
-    pyautogui.PAUSE = 0.5
+    pyautogui.PAUSE = 0.7
 
     while True:
         ictrl.check_ivas_foreground_and_OK(bringToFg=True)
         time.sleep(1)
-        ictrl.waitBar_awaitReady()
+        ictrl.waitBar_awaitReady(timeout=180)
         pyautogui.moveTo(1,1,0.1)
         clickpos = ictrl.awaitSymbol("IVAS_ReconWizard_ExportCSV.png", presstab=True, mousemove=False, timeout=10)
         # clickpos = None
@@ -56,7 +56,10 @@ def reconwizard_page2():
 
         for _ in range(5): pyautogui.hotkey('shift', 'tab') #back to dropdown menu 
         
-        pyautogui.press('down') #select next element of drowpdown menu    
+        pyautogui.press('down') #select next element of drowpdown menu 
+        #time.sleep(0.2)
+        #ictrl.waitBar_awaitReady(timeout=180)
+        time.sleep(1)
     pyautogui.PAUSE = oldpause
     pyautogui.press('\t', presses = 2, interval=0.2) #go to "not overwrite" button
     pyautogui.press('enter')
@@ -83,14 +86,15 @@ def reconwizard_page4():
     clickpos = ictrl.awaitSymbol("IVAS_ReconWizard_StartToFcorrButton.png", presstab=True, mousemove=True) #press the start button ond wait
     pyautogui.click(clickpos)
     time.sleep(1) # Make sure the "Ready" has disappeared after pressing the button
-    ictrl.waitBar_awaitReady()
+    ictrl.waitBar_awaitReady(timeout=300)
 
-    clickpos = ictrl.awaitSymbol("IVAS_ReconWizard_NextButton.png", presstab=True, mousemove=True)  # problem: tab scrolling won't work this time! we need to search for the "next" button.
+    clickpos = ictrl.awaitSymbol("IVAS_ReconWizard_NextButton.png", presstab=True, mousemove=True, timeout=240)  # problem: tab scrolling won't work this time! we need to search for the "next" button.
     pyautogui.click(clickpos) 
 
 def reconwizard_page5():
     #do nothing. Just go to the next page
-    #ictrl.check_ivas_foreground_and_OK(bringToFg=True)
+    ictrl.check_ivas_foreground_and_OK(bringToFg=True)
+    ictrl.bringIVAStoForeGround()
     ictrl.awaitSymbol("IVAS_ReconWizard_Page5Heading.png")
     clickpos = ictrl.awaitSymbol("IVAS_ReconWizard_NextButton.png", presstab=True)  # problem: tab scrolling won't work this time! we need to search for the "next" button.
     pyautogui.click(clickpos) 
@@ -126,7 +130,7 @@ def reconwizard_page7(ivas_javaprocess_pid):
     time.sleep(1)
     pyautogui.click(clickpos)
 
-    ictrl.awaitSymbol("IVAS_massSpectrum_caption.png", sleeptime=4) # when the reconstruction is readu IVAS will open and disply it. this will also display the mass spectrum with the corresponding caption.
+    ictrl.awaitSymbol("IVAS_massSpectrum_caption.png", sleeptime=4, timeout=400) # when the reconstruction is readu IVAS will open and disply it. this will also display the mass spectrum with the corresponding caption.
     
     ivasprocess = psutil.Process(pid=ivas_javaprocess_pid)
 

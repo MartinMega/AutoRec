@@ -189,9 +189,11 @@ def isIVASWindowWithTitleOpen(windowTitles: list) -> bool:
 
 
 
+
 def Reset_IVAS (ivas_javaproc_names, ivas_config_path):
     # terminate ivas process, delete ivas configuration. You might also want to delete any incomplete files on the output path if you use this function.
     terminateIVASprocess(ivas_javaproc_names)
+    time.sleep(0.2)
     Attempts = 0
     while True:
         try:
@@ -229,11 +231,16 @@ def createNewProject(rhitPath, projectName):
     check_ivas_foreground_and_OK(bringToFg=True)
     clickpos = awaitSymbol("IVAS_mainWindow_NewProject.png", presstab=False, mousemove=False) # open new peoject dialog
     pyautogui.click(clickpos)
+    while not isIVASWindowWithTitleOpen(["New Project"]):
+        time.sleep(0.3)
+    time.sleep(1)
     pyautogui.press('enter')  # Go to second page
-    time.sleep(2)
+    awaitSymbol("IVAS_newProject_BrowseButton.png", presstab=False)
+    time.sleep(1)
     pyautogui.press('\t') 
     pyautogui.press('enter') # this opens and fills io the RHIT//HITS file directory dialog
-    time.sleep(2)
+    clickpos = awaitSymbol("IVAS_fileBrowser_Controls.png", presstab=False, mousemove=True)
+    time.sleep(1)     
     pyautogui.typewrite(rhitPath)
     pyautogui.press('enter')
     time.sleep(2)
@@ -241,12 +248,13 @@ def createNewProject(rhitPath, projectName):
     pyautogui.hotkey('ctrl', 'a')
     pyautogui.typewrite(projectName)
     pyautogui.press('\t', presses = 3, interval=0.2) # this opens and fills in the project folder dialog window
-    pyautogui.press('enter') 
-    time.sleep(2)
+    #pyautogui.press('enter') 
+    #time.sleep(2)
+    #clickpos = awaitSymbol("IVAS_fileBrowser_Controls.png", presstab=False, mousemove=True) 
         #pyautogui.typewrite(projectfolder) disabled - don't change the project folder. juset esape instead(see next line)
         #pyautogui.press('enter') #confirm
-    pyautogui.press('escape') 
-    time.sleep(2)
+    #pyautogui.press('escape') 
+    #time.sleep(1)
     pyautogui.press('\t')
     pyautogui.press('enter')
     time.sleep(2)
@@ -262,7 +270,7 @@ def exportEpos():
     pyautogui.rightClick(clickpos) #open the contect menu
     pyautogui.press('down', presses = 6, interval=0.1) #scroll down to the "create epos" item
     pyautogui.press('enter')  # save epos!
-    awaitInfoDialog()
+    awaitInfoDialog(timeout=300)
     pyautogui.press('enter') # confirm with enter
 
 def deleteProject():
@@ -271,9 +279,11 @@ def deleteProject():
     pyautogui.rightClick(clickpos) 
     pyautogui.press('down', presses=7, interval=0.1) #scroll to the "delete from disk" button
     pyautogui.press('enter')
+    awaitQuestionDialog()
     pyautogui.press('enter') #popup asks if we really want to delete the project. YES!
     pyautogui.press('\t') #popup asks if we want to save the analysis state. (bc the project is closed before it is deleted. select "no" and confirm)
     pyautogui.press('enter')
+    awaitInfoDialog()
     pyautogui.press('enter')#popup says "successfully removed." hit the "OK" button
 
 

@@ -2,6 +2,7 @@
 import os
 import shutil
 import configparser
+import time
 from json import loads
 from datetime import datetime
 
@@ -84,7 +85,7 @@ def protocolWrite(text):
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
     with open(protocolFile, "a+") as fid:
-        fid.write(dt_string + " | " + text)
+        fid.write(dt_string + " | " + text + os.linesep)
 
 
 
@@ -95,6 +96,8 @@ getConfigFromFile(configFilePath)
 
 protocolWrite("IVAS_batch reconstruction script started.")
 for rhitFile in filesOnPath(rhitfolder):
+
+    rec_starttime = time.time()
 
     rhitPath= rhitfolder + "/" + rhitFile
     projectName = rhitFile[:-5] + "_AUTOREC"
@@ -151,6 +154,9 @@ for rhitFile in filesOnPath(rhitfolder):
         print ("Tidy up...")
         autoIVAS.IVAS_TidyUp(ivas_javaproc_names)
         print ("...done")
+
+        elapsed = time.time() - rec_starttime
+        protocolWrite("Reconstruction " + projectName + "took " + str(elapsed) + "seconds")
 
 
 
