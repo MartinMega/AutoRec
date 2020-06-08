@@ -96,7 +96,7 @@ def reconwizard_page5():
     ictrl.check_ivas_foreground_and_OK(bringToFg=True)
     ictrl.bringIVAStoForeGround()
     ictrl.awaitSymbol("IVAS_ReconWizard_Page5Heading.png")
-    clickpos = ictrl.awaitSymbol("IVAS_ReconWizard_NextButton.png", presstab=True)  # problem: tab scrolling won't work this time! we need to search for the "next" button.
+    clickpos = ictrl.awaitSymbol("IVAS_ReconWizard_NextButton.png", presstab=True, mousemove=True)  # problem: tab scrolling won't work this time! we need to search for the "next" button.
     pyautogui.click(clickpos) 
 
 def reconwizard_page6():
