@@ -156,7 +156,7 @@ for rhitFile in filesOnPath(rhitfolder):
         print ("...done")
 
         elapsed = time.time() - rec_starttime
-        protocolWrite("Reconstruction " + projectName + "took " + str(elapsed) + "seconds")
+        protocolWrite("Reconstruction " + projectName + " took " + str(elapsed) + " seconds")
 
 
 
