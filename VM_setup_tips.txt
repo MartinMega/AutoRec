@@ -1,0 +1,9 @@
+1. Disable all Windows animations in "Ease of Access settings"
+2. VM runs well with 1920x1080 px virtual display resolution, 3D acceleration eneabled 9this might be hardware-dependant?) and 128 MB video 
+3. To speed up shared folder performance got to  \windows\system32\drivers\etc\lmhosts and add these lines to the file:
+	255.255.255.255        VBOXSVR #PRE
+	255.255.255.255        VBOXSRV #PRE
+	as described in https://www.virtualbox.org/manual/ch12.html#ts_win-guest-shared-folders-access-delay
+	If this file does not exist, create it. Windows might come with a sample file (lmhosts.sam) which might could be modified and renamed to just lmhosts without any filename suffix
+4. Disable Audio in- and output of the VM
+5. in VM disable search indexing: (windows-key+r), -> run revices.msc and disable autotart of WSearch
