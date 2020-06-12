@@ -26,11 +26,10 @@ def reconwizard_page2():
     # 3. When we have saved all files from the dropdown menu, pressung the down key another time will have no efffect.
     # 4. this means that when we attempt to save the file,  we will actually try to save the same file again. ivas will respond by asking us whether we want to overwrite the existing file.
     # 5. This is how we know that we've saved all files and can proceed.
+    # this is very slow
     ictrl.check_ivas_foreground_and_OK(bringToFg=True)
     ictrl.awaitSymbol("IVAS_ReconWizard_Page2Heading.png")
 
-    oldpause = pyautogui.PAUSE # otherwise this is annoyingly slow, but we set it back after the while loop
-    pyautogui.PAUSE = 0.7
 
     while True:
         ictrl.check_ivas_foreground_and_OK(bringToFg=True)
@@ -53,14 +52,15 @@ def reconwizard_page2():
 
         if (ictrl.awaitQuestionDialog(timeout=3, allow_timeout=True) != None): #eventually, the "overwrite?" dialog will pop up. Ww check this for 2 seconds.
             break
-
-        for _ in range(5): pyautogui.hotkey('shift', 'tab') #back to dropdown menu 
+        time.sleep(1)
+        for _ in range(5): 
+            pyautogui.hotkey('shift', 'tab') #back to dropdown menu 
+            time.sleep(1)
         
         pyautogui.press('down') #select next element of drowpdown menu 
-        #time.sleep(0.2)
-        #ictrl.waitBar_awaitReady(timeout=180)
+        time.sleep(2)
+        ictrl.waitBar_awaitReady(timeout=450)
         time.sleep(1)
-    pyautogui.PAUSE = oldpause
     pyautogui.press('\t', presses = 2, interval=0.2) #go to "not overwrite" button
     pyautogui.press('enter')
     ictrl.check_ivas_foreground_and_OK(bringToFg=True)
@@ -130,7 +130,7 @@ def reconwizard_page7(ivas_javaprocess_pid):
     time.sleep(1)
     pyautogui.click(clickpos)
 
-    ictrl.awaitSymbol("IVAS_massSpectrum_caption.png", sleeptime=4, timeout=400) # when the reconstruction is readu IVAS will open and disply it. this will also display the mass spectrum with the corresponding caption.
+    ictrl.awaitSymbol("IVAS_massSpectrum_caption.png", sleeptime=4, timeout=800) # when the reconstruction is readu IVAS will open and disply it. this will also display the mass spectrum with the corresponding caption.
     
     ivasprocess = psutil.Process(pid=ivas_javaprocess_pid)
 
