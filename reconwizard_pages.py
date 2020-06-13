@@ -21,6 +21,7 @@ def reconwizard_page1():
 def reconwizard_page2():
     # second page - we want to export all of the csv file here. the number of csv files that we can expost might vary, depending on wether we reconstruct laser or voltage mode files!
     # here is how it works: 
+    # 0. increase the size of the reconstruction selection such that the entire dataset is reconstructed
     # 1. first click the save-as-csv button and just save the file in the analysis folder.
     # 2. then we use shift-tap to go back to the dropdown menu and use the down key to select the next entry.
     # 3. When we have saved all files from the dropdown menu, pressung the down key another time will have no efffect.
@@ -29,7 +30,18 @@ def reconwizard_page2():
     # this is very slow
     ictrl.check_ivas_foreground_and_OK(bringToFg=True)
     ictrl.awaitSymbol("IVAS_ReconWizard_Page2Heading.png")
+    ictrl.waitBar_awaitReady(timeout=180)
+    pyautogui.moveTo(1,1,0.1)
 
+    windowposition = ictrl.getIVASWindowPosition()
+    tl_dragto = [windowposition[0] + 3,  windowposition[1] + 3]
+    topleft = ictrl.awaitSymbol("IVAS_ReconWizard_page_VoltageSliderTopLeft.png")
+    pyautogui.moveTo(topleft)
+    pyautogui.dragTo(tl_dragto[0], tl_dragto[1] , duration=1, button="left", tween=pyautogui.easeInOutCubic)
+    br_dragto = [windowposition[0] + windowposition[2] - 3,  windowposition[1] + windowposition[3] - 3]
+    bottomright = ictrl.awaitSymbol("IVAS_ReconWizard_page_VoltageSliderBottomRight.png")
+    pyautogui.moveTo(bottomright)
+    pyautogui.dragTo(br_dragto[0], br_dragto[1] , duration=1, button="left", tween=pyautogui.easeInOutCubic)
 
     while True:
         ictrl.check_ivas_foreground_and_OK(bringToFg=True)

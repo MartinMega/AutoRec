@@ -287,6 +287,13 @@ def deleteProject():
     pyautogui.press('enter')#popup says "successfully removed." hit the "OK" button
 
 
+def getIVASWindowPosition():
+    check_ivas_foreground_and_OK(bringToFg = True)
+    time.sleep(0.2)
+    rect = win32gui.GetWindowRect(ivas_MainWin_Handle)
+    res = list(rect)
+    return res
+
 
 def bringIVAStoForeGround():
     #bring ivas window if it exists to the forground
