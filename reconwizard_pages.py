@@ -30,18 +30,23 @@ def reconwizard_page2():
     # this is very slow
     ictrl.check_ivas_foreground_and_OK(bringToFg=True)
     ictrl.awaitSymbol("IVAS_ReconWizard_Page2Heading.png")
-    ictrl.waitBar_awaitReady(timeout=180)
+    ictrl.waitBar_awaitReady(timeout=300)
     pyautogui.moveTo(1,1,0.1)
 
     windowposition = ictrl.getIVASWindowPosition()
-    tl_dragto = [windowposition[0] + 3,  windowposition[1] + 3]
-    topleft = ictrl.awaitSymbol("IVAS_ReconWizard_page_VoltageSliderTopLeft.png")
-    pyautogui.moveTo(topleft)
-    pyautogui.dragTo(tl_dragto[0], tl_dragto[1] , duration=1, button="left", tween=pyautogui.easeInOutCubic)
     br_dragto = [windowposition[0] + windowposition[2] - 3,  windowposition[1] + windowposition[3] - 3]
     bottomright = ictrl.awaitSymbol("IVAS_ReconWizard_page_VoltageSliderBottomRight.png")
     pyautogui.moveTo(bottomright)
     pyautogui.dragTo(br_dragto[0], br_dragto[1] , duration=1, button="left", tween=pyautogui.easeInOutCubic)
+    tl_dragto = [windowposition[0] + 3,  windowposition[1] + 3]
+    topleft = ictrl.awaitSymbol("IVAS_ReconWizard_page_VoltageSliderTopLeft.png")
+    pyautogui.moveTo(topleft)
+    pyautogui.dragTo(tl_dragto[0], tl_dragto[1] , duration=1, button="left", tween=pyautogui.easeInOutCubic)
+    time.sleep(0.5)
+    clickpos = ictrl.awaitSymbol("IVAS_ReconWizard_Page2CommitButton.png")
+    pyautogui.click(clickpos)
+    time.sleep(2)
+    ictrl.waitBar_awaitReady(timeout = 180)
 
     while True:
         ictrl.check_ivas_foreground_and_OK(bringToFg=True)
@@ -71,7 +76,7 @@ def reconwizard_page2():
         
         pyautogui.press('down') #select next element of drowpdown menu 
         time.sleep(2)
-        ictrl.waitBar_awaitReady(timeout=450)
+        ictrl.waitBar_awaitReady(timeout=700)
         time.sleep(1)
     pyautogui.press('\t', presses = 2, interval=0.2) #go to "not overwrite" button
     pyautogui.press('enter')
@@ -108,6 +113,7 @@ def reconwizard_page5():
     ictrl.check_ivas_foreground_and_OK(bringToFg=True)
     ictrl.bringIVAStoForeGround()
     ictrl.awaitSymbol("IVAS_ReconWizard_Page5Heading.png")
+    pyautogui.moveTo(1,1,0.1)
     clickpos = ictrl.awaitSymbol("IVAS_ReconWizard_NextButton.png", presstab=True, mousemove=True)  # problem: tab scrolling won't work this time! we need to search for the "next" button.
     pyautogui.click(clickpos) 
 
@@ -142,7 +148,7 @@ def reconwizard_page7(ivas_javaprocess_pid):
     time.sleep(1)
     pyautogui.click(clickpos)
 
-    ictrl.awaitSymbol("IVAS_massSpectrum_caption.png", sleeptime=4, timeout=800) # when the reconstruction is readu IVAS will open and disply it. this will also display the mass spectrum with the corresponding caption.
+    ictrl.awaitSymbol("IVAS_massSpectrum_caption.png", sleeptime=4, timeout=900) # when the reconstruction is readu IVAS will open and disply it. this will also display the mass spectrum with the corresponding caption.
     
     ivasprocess = psutil.Process(pid=ivas_javaprocess_pid)
 
