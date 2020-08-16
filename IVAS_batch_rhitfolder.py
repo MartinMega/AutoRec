@@ -41,7 +41,7 @@ protocolFile = "empty" #"C:\\Users\\Martin\\Documents\\Spyder\\IVAS_autorec\\pro
 #badRhitsFile = "C:\\Users\\Martin\\Documents\\Spyder\\IVAS_autorec\\badRHITS.txt" # rhits that fail more than maxAttemptsPerFile and therefore are attempted to reconstruct again
 #TODO: need to add functionality for this table
 
-configFilePath = "C:\\Users\\Martin\\Documents\\Spyder\\IVAS_autorec\\AutoRec\\config_Laptop.ini"
+configFilePath = os.path.expanduser("~/Desktop/config_VM.ini")
 
 
 def getConfigFromFile(pathToConfigFile):
