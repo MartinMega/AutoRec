@@ -284,6 +284,7 @@ def deleteProject():
     pyautogui.press('\t') #popup asks if we want to save the analysis state. (bc the project is closed before it is deleted. select "no" and confirm)
     pyautogui.press('enter')
     awaitInfoDialog()
+    time.sleep(1);
     pyautogui.press('enter')#popup says "successfully removed." hit the "OK" button
 
 
