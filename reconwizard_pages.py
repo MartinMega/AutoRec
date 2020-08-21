@@ -39,9 +39,10 @@ def reconwizard_page2():
     pyautogui.moveTo(bottomright)
     pyautogui.dragTo(br_dragto[0], br_dragto[1] , duration=1, button="left", tween=pyautogui.easeInOutCubic)
     tl_dragto = [windowposition[0] + 3,  windowposition[1] + 3]
-    topleft = ictrl.awaitSymbol("IVAS_ReconWizard_page_VoltageSliderTopLeft.png")
-    pyautogui.moveTo(topleft)
-    pyautogui.dragTo(tl_dragto[0], tl_dragto[1] , duration=1, button="left", tween=pyautogui.easeInOutCubic)
+    topleft = ictrl.awaitSymbol("IVAS_ReconWizard_page_VoltageSliderTopLeft.png", allow_timeout=True, timeout=15) #allow not finding this symbol here bc it might overlap with the y axis, in this case ift won't be found but this is fine bc it aleary is where we want it then.
+    if not(topleft == None):
+        pyautogui.moveTo(topleft)
+        pyautogui.dragTo(tl_dragto[0], tl_dragto[1] , duration=1, button="left", tween=pyautogui.easeInOutCubic)
     time.sleep(0.5)
     clickpos = ictrl.awaitSymbol("IVAS_ReconWizard_Page2CommitButton.png")
     pyautogui.click(clickpos)
