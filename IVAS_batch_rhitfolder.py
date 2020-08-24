@@ -117,7 +117,7 @@ for rhitFile in filesOnPath(rhitfolder):
         autoIVAS.AutoIVAS_setClickImageFolder(clickImageFolder)
         autoIVAS.IVAS_FullReconstruction(IVASlocation, IVASdirectory, ivas_javaproc_names, dummyRangeFilePath, rhitPath, projectName)
     except GeneralIvasError:
-        print(" \n Generl IVAS Error. Cannot continue \n")
+        print(" \n General IVAS Error. Cannot continue \n")
         raise 
     except ErrorInAutoIvas as errormsg:
         print( "encountered Error. Will Reset Ivas, delete eventually existing output project and try again. Error was: ")
@@ -141,12 +141,23 @@ for rhitFile in filesOnPath(rhitfolder):
         os.mkdir(copyOutputTo)
         ivasoutputproject = os.path.join(ivasoutputdir , projectName) # the folder where ivas will output the project
 
+        numeposcopied = 0
+        numcsvcopied = 0
         for root, dirs, files in os.walk(ivasoutputproject):
             for file in files:
-                if (file.lower()).endswith(".csv") or (file.lower()).endswith(".epos"): # make filename lowercase -> function becomes case insensitive
+                if not((file.lower()).endswith(".csv") or (file.lower()).endswith(".epos")):  # make filename lowercase -> function becomes case insensitive
+                    continue
+                else:
                     fileToCopy = os.path.join(root, file)
                     print("copying" + file)
                     shutil.copy2(src=fileToCopy, dst=copyOutputTo)
+                    if (file.lower()).endswith(".epos"):
+                        numeposcopied = numeposcopied + 1
+                    else:
+                        numcsvcopied = numcsvcopied + 1                  
+        if (numeposcopied != 1) or (numcsvcopied < 7) or (numcsvcopied > 9):
+            print("Copied " + numeposcopied + " epos files and " + numcsvcopied + " csv files. These numbers seem wrong. Configuration might be wrong. Cannot continue.")
+            raise GeneralIvasError
         print ("...done")
         protocolWrite("...done")
 
