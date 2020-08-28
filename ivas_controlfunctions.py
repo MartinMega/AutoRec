@@ -270,7 +270,7 @@ def exportEpos():
     pyautogui.rightClick(clickpos) #open the contect menu
     pyautogui.press('down', presses = 6, interval=0.1) #scroll down to the "create epos" item
     pyautogui.press('enter')  # save epos!
-    awaitInfoDialog(timeout=300)
+    awaitInfoDialog(timeout=900)
     pyautogui.press('enter') # confirm with enter
 
 def deleteProject():
@@ -283,7 +283,7 @@ def deleteProject():
     pyautogui.press('enter') #popup asks if we really want to delete the project. YES!
     pyautogui.press('\t') #popup asks if we want to save the analysis state. (bc the project is closed before it is deleted. select "no" and confirm)
     pyautogui.press('enter')
-    awaitInfoDialog()
+    awaitInfoDialog(timeout=120)
     time.sleep(1)
     pyautogui.press('enter')#popup says "successfully removed." hit the "OK" button
 
