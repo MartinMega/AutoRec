@@ -155,8 +155,8 @@ for rhitFile in filesOnPath(rhitfolder):
                         numeposcopied = numeposcopied + 1
                     else:
                         numcsvcopied = numcsvcopied + 1                  
-        if (numeposcopied != 1) or (numcsvcopied < 7) or (numcsvcopied > 9):
-            print("Copied " + numeposcopied + " epos files and " + numcsvcopied + " csv files. These numbers seem wrong. Configuration might be wrong. Cannot continue.")
+        if (numeposcopied != 1) or (numcsvcopied < 6) or (numcsvcopied > 9):
+            print("Copied " + str(numeposcopied) + " epos files and " + str(numcsvcopied) + " csv files. These numbers seem wrong. Configuration might be wrong. Cannot continue.")
             raise GeneralIvasError
         print ("...done")
         protocolWrite("...done")
