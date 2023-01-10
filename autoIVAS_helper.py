@@ -19,7 +19,8 @@ ivasWindowTitleRegex = "(.*IVAS.*)"
 
 
 def listOfAllWindowHandles():
-    #using ciode from https://stackoverflow.com/questions/55547940/how-to-get-a-list-of-the-name-of-every-open-window
+    # using code from Pedro Lobito on Stackoverflow:  https://stackoverflow.com/questions/55547940/how-to-get-a-list-of-the-name-of-every-open-window
+    # This code snippet is licensed under a CC-BY-SA-4.0 license: https://creativecommons.org/licenses/by-sa/4.0/ 
     allWindows = list()    
     def winEnumHandler( hwnd, ctx ):
         if win32gui.IsWindowVisible( hwnd ):
