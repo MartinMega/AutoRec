@@ -1,5 +1,5 @@
 1. Disable all Windows animations in "Ease of Access settings"
-2. VM runs well with 1920x1080 px virtual display resolution, 3D acceleration eneabled 9this might be hardware-dependant?) and 128 MB video 
+2. VM runs well with 1920x1080 px virtual display resolution, 3D acceleration eneabled (this might be hardware-dependant?) and 128 MB video 
 3. To speed up shared folder performance got to  \windows\system32\drivers\etc\lmhosts and add these lines to the file:
 	255.255.255.255        VBOXSVR #PRE
 	255.255.255.255        VBOXSRV #PRE

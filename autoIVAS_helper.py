@@ -45,24 +45,17 @@ def getIVASWindowHandle(IVAS_Window_Regex = ivasWindowTitleRegex):
         raise IOError("No windows with IVAS name found - is IVAS running?")
 
 
-def get_hwnds_for_pid (pid): # from http://timgolden.me.uk/python/win32_how_do_i/find-the-window-for-my-subprocess.html
-  def callback (hwnd, hwnds):
-    if win32gui.IsWindowVisible (hwnd) and win32gui.IsWindowEnabled (hwnd):
-      _, found_pid = win32process.GetWindowThreadProcessId (hwnd)
-      if found_pid == pid:
-        hwnds.append (hwnd)
-    return True
-    
-  hwnds = []
-  win32gui.EnumWindows (callback, hwnds)
-  return hwnds
+def get_hwnds_for_pid (pid): 
+    raise NotImplementedError("For License reasons, a code snippet had to be removed here prior to publishing on Github. (Check code)")
+    #to make this function work, go to # from http://timgolden.me.uk/python/win32_how_do_i/find-the-window-for-my-subprocess.html and copy the function into this code.
+    return hwnds
 
-def get_Ivas_pid(processname = "javaw.exe"): # similar https://stackoverflow.com/questions/550653/cross-platform-way-to-get-pids-by-process-name-in-python
+def get_Ivas_pid(processname = "javaw.exe"): # helpful: Answer from pchaitat on https://stackoverflow.com/questions/550653/cross-platform-way-to-get-pids-by-process-name-in-python
     processid = None
-    for proc in psutil.process_iter():
-        if proc.name() == processname:
+    for proce in psutil.process_iter():
+        if proce.name() == processname:
             if (processid == None):
-                processid = proc.pid
+                processid = proce.pid
             else:
                 raise IOError("There are several processes with the name " + processname + " Cannot determine the correct one")
     if processid == None:
